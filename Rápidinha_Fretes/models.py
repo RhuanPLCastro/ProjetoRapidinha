@@ -77,7 +77,7 @@ class Manutencao(models.Model):
         db_table = "manutencao"
         constraints = [
             models.CheckConstraint(
-                check=models.Q(data_saida__isnull=True) | models.Q(data_saida__gte=models.F('data_entrada')),
+                condition=models.Q(data_saida__isnull=True) | models.Q(data_saida__gte=models.F('data_entrada')),
                 name="check_data_saida"
             )
         ]
