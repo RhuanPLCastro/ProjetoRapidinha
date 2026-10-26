@@ -5,8 +5,10 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    min-height: 100vh;
+
     background-color: #F1F5F9;
+    font-family: Arial, sans-serif;
 }
 
 header {
@@ -23,12 +25,12 @@ header {
     border-bottom: 3px solid #E63946;
 }
 
-h1 {
+header h1 {
     color: #1E293B;
     font-size: 28px;
 }
 
-button {
+header button {
     padding: 12px 25px;
 
     background-color: #E63946;
@@ -43,6 +45,777 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+header button:hover {
     background-color: #10B981;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+
+    margin-top: 50px;
+}
+
+main button {
+    padding: 12px 25px;
+
+    background-color: #E63946;
+    color: #FFFFFF;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+main button:hover {
+    background-color: #10B981;
+}
+
+.container {
+    width: 550px;
+    height: 600px;
+
+    padding: 100px 80px;
+
+    background-color: #FFFFFF;
+
+    border-radius: 50%;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+}
+
+.container h1 {
+    margin-bottom: 30px;
+
+    color: #1E293B;
+    text-align: center;
+}
+
+label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #1E293B;
+}
+
+input {
+    width: 100%;
+
+    padding: 12px;
+
+    margin-bottom: 20px;
+
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+}
+
+.container button {
+    width: 100%;
+
+    padding: 12px;
+
+    background-color: #E63946;
+    color: #FFFFFF;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.container button:hover {
+    background-color: #10B981;
+}
+
+aside {
+    width: 230px;
+    height: 100vh;
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #1E293B;
+
+    padding: 20px;
+
+    transition: 0.3s;
+}
+
+.botao-menu {
+    width: 40px;
+    height: 40px;
+
+    margin-bottom: 25px;
+
+    background-color: #334155;
+    color: #FFFFFF;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 20px;
+
+    cursor: pointer;
+}
+
+.botao-menu:hover {
+    background-color: #E63946;
+}
+
+.logo {
+    margin-bottom: 40px;
+    padding-left: 10px;
+}
+
+.logo h2 {
+    color: #FFFFFF;
+    font-size: 22px;
+}
+
+.logo p {
+    color: #E63946;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.menu-titulo {
+    margin-top: 15px;
+    margin-bottom: 5px;
+
+    color: #94A3B8;
+
+    font-size: 11px;
+    font-weight: bold;
+}
+
+nav a {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 12px 15px;
+
+    color: #CBD5E1;
+
+    text-decoration: none;
+
+    border-radius: 7px;
+
+    font-size: 14px;
+}
+
+nav a span {
+    width: 20px;
+
+    text-align: center;
+}
+
+nav a b {
+    font-weight: normal;
+}
+
+nav a:hover {
+    background-color: #334155;
+    color: #FFFFFF;
+}
+
+nav a.ativo {
+    background-color: #E63946;
+    color: #FFFFFF;
+
+    font-weight: bold;
+}
+
+.sair {
+    margin-top: auto;
+}
+
+.sair a {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    color: #CBD5E1;
+
+    text-decoration: none;
+
+    font-size: 14px;
+}
+
+.sair a:hover {
+    color: #E63946;
+}
+
+aside.menor {
+    width: 75px;
+
+    align-items: center;
+
+    padding: 20px 10px;
+}
+
+aside.menor .logo {
+    padding: 0;
+
+    text-align: center;
+}
+
+aside.menor .logo h2 {
+    font-size: 0;
+}
+
+aside.menor .logo h2::after {
+    content: "R";
+
+    font-size: 24px;
+
+    color: #FFFFFF;
+}
+
+aside.menor .logo p {
+    font-size: 0;
+}
+
+aside.menor .logo p::after {
+    content: "F";
+
+    font-size: 14px;
+
+    color: #E63946;
+}
+
+aside.menor .menu-titulo {
+    display: none;
+}
+
+aside.menor nav {
+    width: 100%;
+}
+
+aside.menor nav a {
+    justify-content: center;
+
+    padding: 12px 5px;
+}
+
+aside.menor nav a b {
+    display: none;
+}
+
+aside.menor nav a span {
+    margin: 0;
+}
+
+aside.menor .sair a {
+    justify-content: center;
+}
+
+aside.menor .sair a b {
+    display: none;
+}
+
+.financeiro {
+    display: block;
+
+    margin-left: 230px;
+    margin-top: 0;
+
+    padding: 40px 45px;
+
+    transition: 0.3s;
+}
+
+.financeiro-menor {
+    margin-left: 75px;
+}
+
+.topo {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 25px;
+}
+
+.pequeno {
+    margin-bottom: 7px;
+
+    color: #E63946;
+
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.topo h1 {
+    margin-bottom: 8px;
+
+    color: #1E293B;
+
+    font-size: 30px;
+}
+
+.descricao {
+    color: #64748B;
+
+    font-size: 14px;
+}
+
+.topo button {
+    padding: 13px 20px;
+
+    background-color: #E63946;
+    color: #FFFFFF;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.topo button:hover {
+    background-color: #10B981;
+}
+
+.saldo-principal {
+    min-height: 150px;
+
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 25px 30px;
+
+    margin-bottom: 20px;
+
+    background-color: #1E293B;
+
+    border-radius: 12px;
+
+    color: #FFFFFF;
+}
+
+.saldo-principal p {
+    margin-bottom: 8px;
+
+    color: #CBD5E1;
+
+    font-size: 13px;
+}
+
+.saldo-principal h2 {
+    margin-bottom: 7px;
+
+    font-size: 30px;
+}
+
+.saldo-principal span {
+    color: #10B981;
+
+    font-size: 12px;
+}
+
+.saldo-info {
+    min-width: 170px;
+
+    padding: 15px 20px;
+
+    background-color: #334155;
+
+    border-radius: 8px;
+}
+
+.saldo-info p {
+    color: #CBD5E1;
+}
+
+.saldo-info h3 {
+    color: #FFFFFF;
+
+    font-size: 20px;
+}
+
+.cartoes {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.cartao {
+    min-height: 115px;
+
+    padding: 20px;
+
+    background-color: #FFFFFF;
+
+    border: 1px solid #E2E8F0;
+
+    border-radius: 10px;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cartao p {
+    margin-bottom: 10px;
+
+    color: #64748B;
+
+    font-size: 13px;
+}
+
+.cartao h2 {
+    margin-bottom: 7px;
+
+    color: #1E293B;
+
+    font-size: 22px;
+}
+
+.cartao span {
+    color: #94A3B8;
+
+    font-size: 11px;
+}
+
+.cartao.receita {
+    border-top: 3px solid #10B981;
+}
+
+.cartao.despesa {
+    border-top: 3px solid #E63946;
+}
+
+.financeiro-grid {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 20px;
+
+    margin-bottom: 20px;
+}
+
+.caixa {
+    padding: 22px;
+
+    background-color: #FFFFFF;
+
+    border: 1px solid #E2E8F0;
+
+    border-radius: 10px;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.caixa-topo {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.caixa-topo h2 {
+    margin-bottom: 5px;
+
+    color: #1E293B;
+
+    font-size: 18px;
+}
+
+.caixa-topo p {
+    color: #64748B;
+
+    font-size: 12px;
+}
+
+.icone-receita {
+    width: 35px;
+    height: 35px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    background-color: #D1FAE5;
+
+    color: #10B981;
+
+    border-radius: 50%;
+
+    font-size: 20px;
+}
+
+.icone-despesa {
+    width: 35px;
+    height: 35px;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    background-color: #FEE2E2;
+
+    color: #E63946;
+
+    border-radius: 50%;
+
+    font-size: 20px;
+}
+
+.valor-caixa {
+    margin-bottom: 20px;
+
+    color: #1E293B;
+
+    font-size: 27px;
+}
+
+.linha-info {
+    display: flex;
+
+    justify-content: space-between;
+
+    padding-top: 15px;
+
+    border-top: 1px solid #E2E8F0;
+
+    color: #64748B;
+
+    font-size: 12px;
+}
+
+.movimentacoes {
+    margin-bottom: 20px;
+}
+
+.caixa-topo button {
+    padding: 9px 16px;
+
+    background-color: #10B981;
+    color: #FFFFFF;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.caixa-topo button:hover {
+    background-color: #E63946;
+}
+
+.tabela {
+    width: 100%;
+
+    border: 1px solid #E2E8F0;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+.tabela-cabecalho {
+    min-height: 45px;
+
+    display: grid;
+
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+
+    align-items: center;
+
+    padding: 0 20px;
+
+    background-color: #F8FAFC;
+
+    border-bottom: 1px solid #E2E8F0;
+
+    color: #64748B;
+
+    font-size: 10px;
+
+    font-weight: bold;
+}
+
+.sem-dados {
+    min-height: 150px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+}
+
+.sem-dados h3 {
+    margin-bottom: 8px;
+
+    color: #1E293B;
+
+    font-size: 16px;
+}
+
+.sem-dados p {
+    color: #94A3B8;
+
+    font-size: 13px;
+}
+
+@media (max-width: 1000px) {
+
+    .cartoes {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .financeiro-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+
+    aside {
+        width: 75px;
+    }
+
+    aside .logo h2,
+    aside .logo p,
+    aside nav a b,
+    aside .menu-titulo,
+    aside .sair a b {
+        display: none;
+    }
+
+    aside nav a,
+    aside .sair a {
+        justify-content: center;
+    }
+
+    .financeiro {
+        margin-left: 75px;
+
+        padding: 20px;
+    }
+
+    .topo {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+    .cartoes {
+        grid-template-columns: 1fr;
+    }
+
+    .saldo-principal {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 20px;
+    }
+
+    .saldo-info {
+        width: 100%;
+    }
+}
+.filtro-financeiro {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+
+    padding: 15px;
+
+    background-color: #F8FAFC;
+
+    border: 1px solid #E2E8F0;
+
+    border-radius: 8px;
+}
+
+.filtro-financeiro label {
+    margin: 0;
+
+    color: #1E293B;
+
+    font-size: 13px;
+
+    font-weight: bold;
+}
+
+.filtro-financeiro select {
+    padding: 9px 35px 9px 12px;
+
+    background-color: #FFFFFF;
+
+    color: #1E293B;
+
+    border: 1px solid #CBD5E1;
+
+    border-radius: 7px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.filtro-financeiro select:focus {
+    outline: none;
+
+    border-color: #E63946;
 }

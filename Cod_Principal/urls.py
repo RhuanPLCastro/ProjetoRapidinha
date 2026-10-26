@@ -18,7 +18,15 @@ from django.contrib import admin
 from django.urls import path
 from Rápidinha_Fretes import views
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.dashboard, name='dashboard'),
+
+    path('', views.home, name='home'),
+
+    path('cadastrar/', views.cadastrar, name='cadastrar'),
+
+    path('financeiro/', views.financeiro, name='financeiro'),
+
+    path('veiculos/', views.veiculos, name='veiculos'),
 ]

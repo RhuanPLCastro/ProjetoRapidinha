@@ -2,23 +2,38 @@
 
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>RápiDinha Fretes</title>
 
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=3">
 </head>
 
 <body>
 
     <header>
+
         <h1>RápiDinha Fretes</h1>
 
-        <button>Cadastro</button>
+        <a href="{% url 'cadastrar' %}">
+            <button>Cadastro</button>
+        </a>
+
     </header>
+
+    <main>
+
+        <a href="{% url 'financeiro' %}">
+            <button>Financeiro</button>
+        </a>
+
+        <a href="{% url 'veiculos' %}">
+            <button>Veículos</button>
+        </a>
+
+    </main>
 
 </body>
 </html>

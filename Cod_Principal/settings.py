@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-adxqevf+ze9*ssnxl5*7v+$bg(*7$djw0@0cchz83guks1u@-y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:8000',
+    'http://localhost:8000',
+]
 
 
 # Application definition
@@ -116,6 +120,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'Rápidinha_Fretes' / 'static',
+]
 
 
 # Email
