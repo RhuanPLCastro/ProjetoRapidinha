@@ -819,3 +819,146 @@ aside.menor .sair a b {
 
     border-color: #E63946;
 }
+
+/*Pagina dos Veiculos*/
+
+.veiculos {
+    display: block;
+
+    margin-left: 230px;
+    margin-top: 0;
+
+    padding: 40px 45px;
+
+    transition: 0.3s;
+}
+
+.veiculos-menor {
+    margin-left: 75px;
+}
+
+.veiculos .caixa {
+    margin-bottom: 20px;
+}
+
+.simulador {
+    display: grid;
+
+    grid-template-columns: 2fr 1fr auto;
+
+    gap: 15px;
+
+    align-items: end;
+}
+
+.simulador select,
+.simulador input {
+    width: 100%;
+
+    padding: 12px;
+
+    margin-bottom: 0;
+
+    background-color: #FFFFFF;
+
+    color: #1E293B;
+
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+
+    font-size: 14px;
+}
+
+.simulador select:focus,
+.simulador input:focus {
+    outline: none;
+
+    border-color: #E63946;
+}
+
+.simulador button {
+    padding: 13px 22px;
+
+    background-color: #E63946;
+    color: #FFFFFF;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.simulador button:hover {
+    background-color: #10B981;
+}
+
+.resultado {
+    margin-top: 20px;
+
+    padding: 20px;
+
+    background-color: #1E293B;
+
+    border-radius: 10px;
+
+    color: #FFFFFF;
+}
+
+.resultado p {
+    margin-bottom: 8px;
+
+    color: #CBD5E1;
+
+    font-size: 13px;
+}
+
+.resultado h3 {
+    color: #10B981;
+
+    font-size: 26px;
+}
+
+.tabela-linha {
+    min-height: 50px;
+
+    display: grid;
+
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+
+    align-items: center;
+
+    padding: 0 20px;
+
+    border-bottom: 1px solid #E2E8F0;
+
+    color: #1E293B;
+
+    font-size: 13px;
+}
+
+.tabela-linha:last-child {
+    border-bottom: none;
+}
+
+.tabela-linha:hover {
+    background-color: #F8FAFC;
+}
+
+@media (max-width: 1000px) {
+
+    .simulador {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+
+    .veiculos {
+        margin-left: 75px;
+
+        padding: 20px;
+    }
+}
