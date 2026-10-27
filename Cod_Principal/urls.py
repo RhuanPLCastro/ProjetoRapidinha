@@ -22,11 +22,10 @@ from Rápidinha_Fretes import views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('', views.home, name='home'),
+    path('', views.cadastrar, name='inicio'),
+    path('home/', views.home, name='home'),
 
     path('cadastrar/', views.cadastrar, name='cadastrar'),
-
     path('financeiro/', views.financeiro, name='financeiro'),
-
     path('veiculos/', views.veiculos, name='veiculos'),
 ]

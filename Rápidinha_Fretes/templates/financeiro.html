@@ -9,7 +9,7 @@
 
     <title>Financeiro - RápiDinha Fretes</title>
 
-    <link rel="stylesheet" href="{% static 'style.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=6">
 </head>
 
 <body>
@@ -59,7 +59,6 @@
 
     </aside>
 
-
     <main class="financeiro">
 
         <div class="topo">
@@ -74,12 +73,11 @@
                 </p>
             </div>
 
-            <button>
+            <button id="btnNovaMovimentacao">
                 + Nova movimentação
             </button>
 
         </div>
-
 
         <section class="saldo-principal">
 
@@ -93,11 +91,11 @@
 
             <div class="saldo-info">
                 <p>Este mês</p>
+
                 <h3>R$ 0,00</h3>
             </div>
 
         </section>
-
 
         <section class="cartoes">
 
@@ -111,17 +109,17 @@
 
             </div>
 
-
             <div class="cartao despesa">
 
                 <p>Despesas</p>
 
-                <h2>R$ 0,00</h2>
+                <h2>
+                    R$ {{ total_manutencao|floatformat:2 }}
+                </h2>
 
-                <span>Valores gastos</span>
+                <span>Gastos com manutenção</span>
 
             </div>
-
 
             <div class="cartao">
 
@@ -133,19 +131,17 @@
 
             </div>
 
-
             <div class="cartao">
 
                 <p>Movimentações</p>
 
-                <h2>0</h2>
+                <h2>{{ manutencoes|length }}</h2>
 
                 <span>Registros financeiros</span>
 
             </div>
 
         </section>
-
 
         <section class="financeiro-grid">
 
@@ -178,7 +174,6 @@
 
             </div>
 
-
             <div class="caixa">
 
                 <div class="caixa-topo">
@@ -198,35 +193,37 @@
                 </div>
 
                 <h3 class="valor-caixa">
-                    R$ 0,00
+                    R$ {{ total_manutencao|floatformat:2 }}
                 </h3>
 
                 <div class="linha-info">
                     <span>Total gasto</span>
-                    <span>0 registros</span>
+
+                    <span>
+                        {{ manutencoes|length }} registros
+                    </span>
                 </div>
 
             </div>
 
         </section>
 
-
         <section class="caixa movimentacoes">
 
             <div class="filtro-financeiro">
 
-            <label>Filtrar por:</label>
+                <label>Filtrar por:</label>
 
-            <select>
-                <option value="todos">Todos</option>
-                <option value="gerentes">Gerentes</option>
-                <option value="diretores">Diretores</option>
-                <option value="veiculos">Veículos</option>
-                <option value="manutencao">Manutenção</option>
-                <option value="eventos">Eventos</option>
-            </select>
+                <select>
+                    <option value="todos">Todos</option>
+                    <option value="gerentes">Gerentes</option>
+                    <option value="diretores">Diretores</option>
+                    <option value="veiculos">Veículos</option>
+                    <option value="manutencao">Manutenção</option>
+                    <option value="eventos">Eventos</option>
+                </select>
 
-        </div>
+            </div>
 
             <div class="caixa-topo">
 
@@ -238,12 +235,11 @@
                     </p>
                 </div>
 
-                <button>
+                <button id="btnNovaMovimentacao2">
                     Adicionar
                 </button>
 
             </div>
-
 
             <div class="tabela">
 
@@ -257,6 +253,39 @@
 
                 </div>
 
+                {% for manutencao in manutencoes %}
+
+                <div class="tabela-cabecalho">
+
+                    <span>
+                        {{ manutencao.descricao|default:manutencao.tipo }}
+                    </span>
+
+                    <span>
+                        {{ manutencao.data_entrada|date:"d/m/Y" }}
+                    </span>
+
+                    <span>
+                        Manutenção
+                    </span>
+
+                    <span>
+                        R$ {{ manutencao.custo|floatformat:2 }}
+                    </span>
+
+                    <span>
+
+                        {% if manutencao.data_saida %}
+                            Concluída
+                        {% else %}
+                            Em andamento
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+                {% empty %}
 
                 <div class="sem-dados">
 
@@ -268,24 +297,147 @@
 
                 </div>
 
+                {% endfor %}
+
             </div>
 
         </section>
 
     </main>
 
+    <div id="modalMovimentacao" class="modal">
+
+        <div class="modal-conteudo">
+
+            <button id="fecharModal">
+                ×
+            </button>
+
+            <h2>Nova movimentação</h2>
+
+            <form method="POST" action="{% url 'financeiro' %}">
+
+                {% csrf_token %}
+
+                <label>
+                    Tipo
+                </label>
+
+                <select
+                    name="tipo"
+                    id="tipoMovimentacao"
+                    required
+                >
+
+                    <option value="despesa">
+                        Despesa
+                    </option>
+
+                </select>
+
+                <label>
+                    Descrição
+                </label>
+
+                <input
+                    type="text"
+                    name="descricao"
+                    id="descricaoMovimentacao"
+                    placeholder="Ex: Troca de óleo"
+                    required
+                >
+
+                <label>
+                    Valor
+                </label>
+
+                <input
+                    type="number"
+                    name="valor"
+                    id="valorMovimentacao"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    required
+                >
+
+                <label>
+                    Data
+                </label>
+
+                <input
+                    type="date"
+                    name="data"
+                    id="dataMovimentacao"
+                    required
+                >
+
+                <label>
+                    Veículo
+                </label>
+
+                <label>
+                    Veículo
+                </label>
+
+                <select
+                    name="veiculo"
+                    id="veiculoMovimentacao"
+                >
+                    <option value="">
+                        Nenhum veículo
+                    </option>
+
+                    {% for veiculo in veiculos %}
+                        <option value="{{ veiculo.id_veiculo }}">
+                            {{ veiculo.placa }} - {{ veiculo.modelo }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <div class="botoes-modal">
+
+                    <button
+                        type="button"
+                        id="cancelarMovimentacao"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="salvarMovimentacao"
+                    >
+                        Salvar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
     <script>
 
         function diminuirBarra() {
 
-            document.getElementById("barra").classList.toggle("menor");
+            document
+                .getElementById("barra")
+                .classList
+                .toggle("menor");
 
-            document.querySelector(".financeiro").classList.toggle("financeiro-menor");
+            document
+                .querySelector(".financeiro")
+                .classList
+                .toggle("financeiro-menor");
 
         }
 
     </script>
+
+    <script src="{% static 'js/financeiro.js' %}"></script>
 
 </body>
 
