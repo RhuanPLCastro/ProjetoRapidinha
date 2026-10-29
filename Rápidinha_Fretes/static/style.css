@@ -11,6 +11,14 @@ body {
     font-family: Arial, sans-serif;
 }
 
+body.cadastro-pagina {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 40px 20px;
+}
+
 header {
     width: 100%;
     height: 80px;
@@ -77,23 +85,17 @@ main button:hover {
 }
 
 .container {
-    width: 550px;
-    height: 600px;
+    width: 100%;
+    max-width: 460px;
 
-    padding: 100px 80px;
+    padding: 40px 35px;
 
     background-color: #FFFFFF;
 
-    border-radius: 50%;
+    border-top: 4px solid #E63946;
+    border-radius: 16px;
 
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-
-    position: absolute;
-
-    top: 50%;
-    left: 50%;
-
-    transform: translate(-50%, -50%);
 }
 
 .container h1 {
@@ -141,6 +143,42 @@ input {
 
 .container button:hover {
     background-color: #10B981;
+}
+
+.container h2 {
+    margin: 30px 0 20px;
+    padding-top: 25px;
+
+    border-top: 1px solid #E2E8F0;
+
+    color: #1E293B;
+    font-size: 20px;
+    text-align: center;
+}
+
+.container input:focus {
+    outline: none;
+
+    border-color: #E63946;
+}
+
+.erro {
+    margin-bottom: 15px;
+    padding: 10px 12px;
+
+    background-color: #FEE2E2;
+    color: #B91C1C;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+}
+
+@media (max-width: 480px) {
+
+    .container {
+        padding: 30px 20px;
+    }
 }
 
 aside {
@@ -1039,4 +1077,135 @@ aside.menor .sair a b {
     border-radius: 8px;
 
     cursor: pointer;
+}
+.painel-admin {
+    width: 90%;
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 35px;
+
+    background-color: #ffffff;
+    border-radius: 16px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
+}
+
+.painel-admin h1 {
+    margin-bottom: 8px;
+
+    color: #1E293B;
+    font-size: 32px;
+}
+
+.painel-admin > p {
+    margin-bottom: 30px;
+
+    color: #64748B;
+    font-size: 16px;
+}
+
+/* Tabela */
+
+.tabela-admin {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+
+    border-radius: 10px;
+}
+
+.tabela-admin th {
+    padding: 15px;
+
+    background-color: #1E293B;
+    color: #ffffff;
+
+    text-align: left;
+    font-size: 15px;
+}
+
+.tabela-admin td {
+    padding: 15px;
+
+    border-bottom: 1px solid #E2E8F0;
+
+    color: #334155;
+}
+
+.tabela-admin tr:last-child td {
+    border-bottom: none;
+}
+
+.tabela-admin tr:hover {
+    background-color: #F8FAFC;
+}
+
+/* Select */
+
+.tabela-admin select {
+    width: 100%;
+    max-width: 180px;
+
+    padding: 9px 12px;
+
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+
+    background-color: #ffffff;
+    color: #1E293B;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.tabela-admin select:focus {
+    outline: none;
+    border-color: #E63946;
+}
+
+/* Botão Salvar */
+
+.btn-salvar-admin {
+    padding: 9px 18px;
+
+    border: none;
+    border-radius: 8px;
+
+    background-color: #E63946;
+    color: #ffffff;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.btn-salvar-admin:hover {
+    background-color: #C92F3B;
+    transform: translateY(-1px);
+}
+
+/* Botão voltar */
+
+.btn-voltar-admin {
+    display: inline-block;
+
+    margin-top: 25px;
+    padding: 11px 22px;
+
+    border-radius: 8px;
+
+    background-color: #1E293B;
+    color: #ffffff;
+
+    text-decoration: none;
+    font-weight: bold;
+
+    transition: 0.2s;
+}
+
+.btn-voltar-admin:hover {
+    background-color: #334155;
 }

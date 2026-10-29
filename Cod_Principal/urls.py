@@ -23,9 +23,16 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', views.cadastrar, name='inicio'),
-    path('home/', views.home, name='home'),
-
     path('cadastrar/', views.cadastrar, name='cadastrar'),
+<<<<<<< HEAD
     path('financeiro/', include('financeiro.urls')),
+=======
+    path('sair/', views.sair, name='sair'),
+
+    path('home/', views.home, name='home'),
+    path('financeiro/', views.financeiro, name='financeiro'),
+>>>>>>> 687465b (Atualiza painel administrativo)
     path('veiculos/', views.veiculos, name='veiculos'),
+
+    path('painel-admin/', views.painel_admin, name='painel_admin'),
 ]

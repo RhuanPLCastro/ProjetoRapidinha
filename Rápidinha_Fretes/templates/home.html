@@ -2,34 +2,107 @@
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>RápiDinha Fretes</title>
 
-    <link rel="stylesheet" href="{% static 'style.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=6">
 </head>
 
 <body>
 
-    <header>
+    <aside id="barra">
 
-        <h1>RápiDinha Fretes</h1>
+        <button class="botao-menu" onclick="diminuirBarra()">
+            ☰
+        </button>
 
-    </header>
+        <div class="logo">
+            <h2>RápiDinha</h2>
+            <p>Fretes</p>
+        </div>
 
-    <main>
+        <nav>
 
-        <a href="{% url 'financeiro' %}">
-            <button>Financeiro</button>
-        </a>
+            <p class="menu-titulo">GESTÃO</p>
 
-        <a href="{% url 'veiculos' %}">
-            <button>Veículos</button>
-        </a>
+            <a href="{% url 'home' %}" class="ativo">
+                <span>⌂</span>
+                <b>Home</b>
+            </a>
+
+            <a href="{% url 'financeiro' %}">
+                <span>R$</span>
+                <b>Financeiro</b>
+            </a>
+
+            <p class="menu-titulo">FROTA</p>
+
+            <a href="{% url 'veiculos' %}">
+                <span>🚚</span>
+                <b>Veículos</b>
+            </a>
+
+            {% if request.session.cargo == "Administrador" %}
+                <p class="menu-titulo">ADMINISTRAÇÃO</p>
+
+                <a href="{% url 'painel_admin' %}">
+                    <span>⚙</span>
+                    <b>Administração</b>
+                </a>
+            {% endif %}
+
+        </nav>
+
+        <div class="sair">
+
+            <a href="{% url 'sair' %}">
+                <span>←</span>
+                <b>Sair</b>
+            </a>
+
+        </div>
+
+    </aside>
+
+    <main class="financeiro">
+
+        <div class="topo">
+
+            <div>
+                <p class="pequeno">PAINEL</p>
+
+                <h1>RápiDinha Fretes</h1>
+
+                <p class="descricao">
+                    {% if request.session.nome %}Olá, {{ request.session.nome }}. {% endif %}Use o menu ao lado para acessar o financeiro e a frota.
+                </p>
+            </div>
+
+        </div>
 
     </main>
+
+    <script>
+
+        function diminuirBarra() {
+
+            document
+                .getElementById("barra")
+                .classList
+                .toggle("menor");
+
+            document
+                .querySelector("main")
+                .classList
+                .toggle("financeiro-menor");
+
+        }
+
+    </script>
 
 </body>
 </html>

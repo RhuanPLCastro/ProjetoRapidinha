@@ -1,4 +1,4 @@
-{% load static %}
+{% load static l10n %}
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -10,6 +10,13 @@
     <title>Financeiro - RápiDinha Fretes</title>
 
     <link rel="stylesheet" href="{% static 'style.css' %}?v=6">
+
+    <style>
+        .filtro-financeiro { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        .grafico-box { position: relative; height: 300px; margin-top: 16px; }
+        .grafico-total { margin-top: 12px; font-weight: 600; }
+        .erro { color: #dc2626; font-weight: 600; }
+    </style>
 </head>
 
 <body>
@@ -113,11 +120,11 @@
 
                 <p>Despesas</p>
 
-                <h2>
+                <h2 id="valorDespesas">
                     R$ {{ total_manutencao|floatformat:2 }}
                 </h2>
 
-                <span>Gastos com manutenção</span>
+                <span id="legendaDespesas">Gastos com manutenção</span>
 
             </div>
 
@@ -135,74 +142,9 @@
 
                 <p>Movimentações</p>
 
-                <h2>{{ manutencoes|length }}</h2>
+                <h2 id="qtdMovimentacoes">{{ manutencoes|length }}</h2>
 
                 <span>Registros financeiros</span>
-
-            </div>
-
-        </section>
-
-        <section class="financeiro-grid">
-
-            <div class="caixa">
-
-                <div class="caixa-topo">
-
-                    <div>
-                        <h2>Receitas</h2>
-
-                        <p>
-                            Valores recebidos pelos fretes
-                        </p>
-                    </div>
-
-                    <span class="icone-receita">
-                        +
-                    </span>
-
-                </div>
-
-                <h3 class="valor-caixa">
-                    R$ 0,00
-                </h3>
-
-                <div class="linha-info">
-                    <span>Total recebido</span>
-                    <span>0 registros</span>
-                </div>
-
-            </div>
-
-            <div class="caixa">
-
-                <div class="caixa-topo">
-
-                    <div>
-                        <h2>Despesas</h2>
-
-                        <p>
-                            Gastos relacionados aos fretes
-                        </p>
-                    </div>
-
-                    <span class="icone-despesa">
-                        -
-                    </span>
-
-                </div>
-
-                <h3 class="valor-caixa">
-                    R$ {{ total_manutencao|floatformat:2 }}
-                </h3>
-
-                <div class="linha-info">
-                    <span>Total gasto</span>
-
-                    <span>
-                        {{ manutencoes|length }} registros
-                    </span>
-                </div>
 
             </div>
 
@@ -212,15 +154,23 @@
 
             <div class="filtro-financeiro">
 
-                <label>Filtrar por:</label>
+                <label for="filtroCategoria">Filtrar por:</label>
 
-                <select>
+                <select id="filtroCategoria">
                     <option value="todos">Todos</option>
                     <option value="gerentes">Gerentes</option>
                     <option value="diretores">Diretores</option>
                     <option value="veiculos">Veículos</option>
                     <option value="manutencao">Manutenção</option>
                     <option value="eventos">Eventos</option>
+                </select>
+
+                <label for="filtroPeriodo">Período:</label>
+
+                <select id="filtroPeriodo">
+                    <option value="tudo">Todo o período</option>
+                    <option value="semana">Esta semana</option>
+                    <option value="mes">Este mês</option>
                 </select>
 
             </div>
@@ -255,7 +205,10 @@
 
                 {% for manutencao in manutencoes %}
 
-                <div class="tabela-cabecalho">
+                <div class="tabela-cabecalho linha-mov"
+                     data-data="{{ manutencao.data_entrada|date:'Y-m-d' }}"
+                     data-custo="{{ manutencao.custo|unlocalize }}"
+                     data-categoria="manutencao veiculos">
 
                     <span>
                         {{ manutencao.descricao|default:manutencao.tipo }}
@@ -299,7 +252,37 @@
 
                 {% endfor %}
 
+                <div class="sem-dados" id="semResultados" style="display:none;">
+
+                    <h3>Nenhuma movimentação neste filtro</h3>
+
+                    <p>
+                        Tente outro período ou outra categoria.
+                    </p>
+
+                </div>
+
             </div>
+
+        </section>
+
+        <section class="caixa grafico">
+
+            <div class="caixa-topo">
+
+                <div>
+                    <h2>Gastos no período</h2>
+
+                    <p id="tituloGrafico">Últimos 6 meses</p>
+                </div>
+
+            </div>
+
+            <div class="grafico-box">
+                <canvas id="graficoGastos"></canvas>
+            </div>
+
+            <p class="grafico-total" id="totalGrafico"></p>
 
         </section>
 
@@ -314,6 +297,10 @@
             </button>
 
             <h2>Nova movimentação</h2>
+
+            {% if erro %}
+                <p class="erro">{{ erro }}</p>
+            {% endif %}
 
             <form method="POST" action="{% url 'financeiro' %}">
 
@@ -376,16 +363,13 @@
                     Veículo
                 </label>
 
-                <label>
-                    Veículo
-                </label>
-
                 <select
                     name="veiculo"
                     id="veiculoMovimentacao"
+                    required
                 >
                     <option value="">
-                        Nenhum veículo
+                        Selecione o veículo
                     </option>
 
                     {% for veiculo in veiculos %}
@@ -435,6 +419,161 @@
 
         }
 
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+    (function () {
+
+        const selCategoria = document.getElementById("filtroCategoria");
+        const selPeriodo = document.getElementById("filtroPeriodo");
+        const aviso = document.getElementById("semResultados");
+        const hoje = new Date();
+        let grafico = null;
+
+        const moeda = (v) =>
+            v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+        const dados = Array.from(document.querySelectorAll(".linha-mov")).map((el) => {
+            const [a, m, d] = el.dataset.data.split("-").map(Number);
+            return {
+                el: el,
+                data: new Date(a, m - 1, d),
+                custo: parseFloat(el.dataset.custo) || 0,
+                categorias: el.dataset.categoria.split(" ")
+            };
+        });
+
+        function inicioSemana() {
+            const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+            d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+            return d;
+        }
+
+        function noPeriodo(data, periodo) {
+            if (periodo === "semana") {
+                const ini = inicioSemana();
+                const fim = new Date(ini);
+                fim.setDate(ini.getDate() + 7);
+                return data >= ini && data < fim;
+            }
+            if (periodo === "mes") {
+                return data.getFullYear() === hoje.getFullYear()
+                    && data.getMonth() === hoje.getMonth();
+            }
+            return true;
+        }
+
+        function montarColunas(itens, periodo) {
+            let labels = [];
+            let valores = [];
+
+            if (periodo === "semana") {
+                labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+                valores = new Array(7).fill(0);
+                itens.forEach((i) => { valores[(i.data.getDay() + 6) % 7] += i.custo; });
+                return { labels, valores, titulo: "Esta semana, por dia" };
+            }
+
+            if (periodo === "mes") {
+                const dias = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
+                const semanas = Math.ceil(dias / 7);
+                for (let s = 0; s < semanas; s++) {
+                    const ini = s * 7 + 1;
+                    const fim = Math.min(ini + 6, dias);
+                    labels.push(ini + "–" + fim);
+                }
+                valores = new Array(semanas).fill(0);
+                itens.forEach((i) => { valores[Math.floor((i.data.getDate() - 1) / 7)] += i.custo; });
+                return { labels, valores, titulo: "Este mês, por semana (dias do mês)" };
+            }
+
+            const nomes = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+            const meses = [];
+            for (let k = 5; k >= 0; k--) {
+                const d = new Date(hoje.getFullYear(), hoje.getMonth() - k, 1);
+                meses.push({ a: d.getFullYear(), m: d.getMonth() });
+                labels.push(nomes[d.getMonth()] + "/" + String(d.getFullYear()).slice(2));
+            }
+            valores = new Array(6).fill(0);
+            itens.forEach((i) => {
+                const pos = meses.findIndex((x) => x.a === i.data.getFullYear() && x.m === i.data.getMonth());
+                if (pos >= 0) valores[pos] += i.custo;
+            });
+            return { labels, valores, titulo: "Últimos 6 meses" };
+        }
+
+        function desenharGrafico(col) {
+            document.getElementById("tituloGrafico").textContent = col.titulo;
+
+            if (typeof Chart === "undefined") {
+                document.getElementById("totalGrafico").textContent =
+                    "Não foi possível carregar o gráfico (sem conexão com a internet).";
+                return;
+            }
+
+            if (grafico) grafico.destroy();
+
+            grafico = new Chart(document.getElementById("graficoGastos"), {
+                type: "bar",
+                data: {
+                    labels: col.labels,
+                    datasets: [{
+                        label: "Gastos (R$)",
+                        data: col.valores,
+                        backgroundColor: "#ef4444",
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (c) => moeda(c.parsed.y) } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: (v) => moeda(v) } }
+                    }
+                }
+            });
+        }
+
+        function atualizar() {
+            const categoria = selCategoria.value;
+            const periodo = selPeriodo.value;
+
+            const visiveis = dados.filter((i) =>
+                (categoria === "todos" || i.categorias.includes(categoria))
+                && noPeriodo(i.data, periodo)
+            );
+
+            dados.forEach((i) => { i.el.style.display = visiveis.includes(i) ? "" : "none"; });
+
+            if (aviso) aviso.style.display = (dados.length > 0 && visiveis.length === 0) ? "" : "none";
+
+            const total = visiveis.reduce((soma, i) => soma + i.custo, 0);
+            const legenda = { tudo: "", semana: " · esta semana", mes: " · este mês" }[periodo];
+
+            document.getElementById("valorDespesas").textContent = moeda(total);
+            document.getElementById("legendaDespesas").textContent = "Gastos com manutenção" + legenda;
+            document.getElementById("qtdMovimentacoes").textContent = visiveis.length;
+
+            const col = montarColunas(visiveis, periodo);
+            desenharGrafico(col);
+
+            if (typeof Chart !== "undefined") {
+                document.getElementById("totalGrafico").textContent =
+                    "Total no filtro: " + moeda(total);
+            }
+        }
+
+        selCategoria.addEventListener("change", atualizar);
+        selPeriodo.addEventListener("change", atualizar);
+        atualizar();
+
+    })();
     </script>
 
     <script src="{% static 'js/financeiro.js' %}"></script>
