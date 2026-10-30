@@ -2,114 +2,332 @@
 
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Administração - RápiDinha Fretes</title>
-
-    <link rel="stylesheet" href="{% static 'style.css' %}?v=7">
+    <title>Painel Administrativo - RápiDinha Fretes</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=11">
 </head>
 
 <body>
 
-    <main class="painel-admin">
+<header class="topo">
 
-        <h1>Administração</h1>
+    <div class="logo-area">
+        <div class="logo-rd">RD</div>
 
-        <p>
-            Defina o cargo de cada usuário do sistema.
-        </p>
+        <div>
+            <h1>RápiDinha Fretes</h1>
+            <span>Painel Administrativo</span>
+        </div>
+    </div>
 
-        <table class="tabela-admin">
+    <div class="usuario-area">
+        <span>Administrador</span>
+        <a href="{% url 'sair' %}">Encerrar sessão</a>
+    </div>
 
-            <thead>
-                <tr>
-                    <th>Usuário</th>
-                    <th>Cargo</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
+</header>
 
-            <tbody>
+<main class="painel">
+
+    <section class="cabecalho-painel">
+        <div>
+            <span class="tag">ADMINISTRAÇÃO</span>
+            <h2>Controle de usuários e acessos</h2>
+
+            <p>
+                Crie grupos, selecione usuários e determine quais áreas
+                do sistema cada grupo poderá acessar.
+            </p>
+        </div>
+
+        <a href="{% url 'home' %}" class="btn-voltar">← Voltar</a>
+    </section>
+
+    <section class="resumo">
+
+        <div class="card-resumo">
+            <span class="icone">👥</span>
+
+            <div>
+                <strong>{{ usuarios|length }}</strong>
+                <span>Usuários</span>
+            </div>
+        </div>
+
+        <div class="card-resumo">
+            <span class="icone">🔐</span>
+
+            <div>
+                <strong>5</strong>
+                <span>Áreas do sistema</span>
+            </div>
+        </div>
+
+        <div class="card-resumo">
+            <span class="icone">🛡️</span>
+
+            <div>
+                <strong>Grupos</strong>
+                <span>Controle de acesso</span>
+            </div>
+        </div>
+
+    </section>
+
+    <div class="grid-painel">
+
+        <section class="card">
+
+            <div class="card-titulo">
+                <div>
+                    <span class="numero">01</span>
+
+                    <div>
+                        <h3>Criar grupo</h3>
+                        <p>Defina um nome para o novo grupo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" class="formulario">
+                {% csrf_token %}
+
+                <input type="hidden" name="acao" value="criar_grupo">
+
+                <label for="nome_grupo">Nome do grupo</label>
+
+                <input
+                    type="text"
+                    id="nome_grupo"
+                    name="nome_grupo"
+                    placeholder="Ex.: Operadores de Frota"
+                    required
+                >
+
+                <label for="descricao_grupo">Descrição</label>
+
+                <textarea
+                    id="descricao_grupo"
+                    name="descricao_grupo"
+                    placeholder="Descreva a função deste grupo..."
+                    rows="4"
+                ></textarea>
+
+                <button type="submit" class="btn-principal">
+                    + Criar grupo
+                </button>
+            </form>
+
+        </section>
+
+        <section class="card">
+
+            <div class="card-titulo">
+                <div>
+                    <span class="numero">02</span>
+
+                    <div>
+                        <h3>Selecionar usuários</h3>
+                        <p>Escolha quem fará parte do grupo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lista-usuarios">
 
                 {% for u in usuarios %}
 
-                <tr>
+                <label class="usuario-item">
 
-                    <td>
-                        {{ u.usuario }}
-                    </td>
+                    <input
+                        type="checkbox"
+                        name="usuarios"
+                        value="{{ u.id_login }}"
+                    >
 
-                    <td>
+                    <span class="check-custom"></span>
 
-                        <form method="POST">
+                    <span class="avatar">
+                        {{ u.usuario|first|upper }}
+                    </span>
 
-                            {% csrf_token %}
+                    <span class="usuario-info">
+                        <strong>{{ u.usuario }}</strong>
+                        <small>{{ u.cargo }}</small>
+                    </span>
 
-                            <input
-                                type="hidden"
-                                name="id_login"
-                                value="{{ u.id_login }}"
-                            >
-
-                            <select name="cargo">
-
-                                {% for c in cargos %}
-
-                                    <option
-                                        value="{{ c }}"
-                                        {% if u.cargo == c %}
-                                            selected
-                                        {% endif %}
-                                    >
-                                        {{ c }}
-                                    </option>
-
-                                {% endfor %}
-
-                            </select>
-
-                    </td>
-
-                    <td>
-
-                            <button
-                                type="submit"
-                                class="btn-salvar-admin"
-                            >
-                                Salvar
-                            </button>
-
-                        </form>
-
-                    </td>
-
-                </tr>
+                </label>
 
                 {% empty %}
 
-                <tr>
-                    <td colspan="3">
-                        Nenhum usuário cadastrado.
-                    </td>
-                </tr>
+                <div class="sem-usuarios">
+                    Nenhum usuário cadastrado.
+                </div>
 
                 {% endfor %}
 
-            </tbody>
+            </div>
 
-        </table>
+        </section>
 
-        <a
-            href="{% url 'home' %}"
-            class="btn-voltar-admin"
-        >
-            Voltar
-        </a>
+        <section class="card">
 
-    </main>
+            <div class="card-titulo">
+                <div>
+                    <span class="numero">03</span>
+
+                    <div>
+                        <h3>Permissões do grupo</h3>
+                        <p>Determine quais áreas poderão ser acessadas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="permissoes">
+
+                <label class="permissao">
+                    <input type="checkbox" name="permissoes" value="financeiro">
+                    <span class="permissao-check"></span>
+                    <span class="permissao-icon financeiro">$</span>
+
+                    <span>
+                        <strong>Financeiro</strong>
+                        <small>Visualizar e gerenciar informações financeiras.</small>
+                    </span>
+                </label>
+
+                <label class="permissao">
+                    <input type="checkbox" name="permissoes" value="veiculos">
+                    <span class="permissao-check"></span>
+                    <span class="permissao-icon">🚚</span>
+
+                    <span>
+                        <strong>Veículos</strong>
+                        <small>Consultar e administrar veículos da frota.</small>
+                    </span>
+                </label>
+
+                <label class="permissao">
+                    <input type="checkbox" name="permissoes" value="manutencoes">
+                    <span class="permissao-check"></span>
+                    <span class="permissao-icon">🔧</span>
+
+                    <span>
+                        <strong>Manutenções</strong>
+                        <small>Gerenciar manutenções da frota.</small>
+                    </span>
+                </label>
+
+                <label class="permissao">
+                    <input type="checkbox" name="permissoes" value="motoristas">
+                    <span class="permissao-check"></span>
+                    <span class="permissao-icon">👤</span>
+
+                    <span>
+                        <strong>Motoristas</strong>
+                        <small>Consultar e administrar motoristas.</small>
+                    </span>
+                </label>
+
+                <label class="permissao permissao-admin">
+                    <input type="checkbox" name="permissoes" value="administracao">
+                    <span class="permissao-check"></span>
+                    <span class="permissao-icon">⚙</span>
+
+                    <span>
+                        <strong>Administração</strong>
+                        <small>Gerenciar usuários, grupos e permissões.</small>
+                    </span>
+                </label>
+
+            </div>
+
+        </section>
+
+        <section class="card">
+
+            <div class="card-titulo">
+                <div>
+                    <span class="numero">04</span>
+
+                    <div>
+                        <h3>Grupos existentes</h3>
+                        <p>Gerencie os grupos cadastrados.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grupos">
+
+                <div class="grupo">
+                    <div class="grupo-icon">🛡️</div>
+
+                    <div class="grupo-info">
+                        <strong>Administradores</strong>
+                        <span>Acesso completo ao sistema</span>
+                    </div>
+
+                    <button type="button" class="btn-editar">
+                        Editar
+                    </button>
+                </div>
+
+                <div class="grupo">
+                    <div class="grupo-icon">🚚</div>
+
+                    <div class="grupo-info">
+                        <strong>Operadores de Frota</strong>
+                        <span>Veículos e motoristas</span>
+                    </div>
+
+                    <button type="button" class="btn-editar">
+                        Editar
+                    </button>
+                </div>
+
+                <div class="grupo">
+                    <div class="grupo-icon">💰</div>
+
+                    <div class="grupo-info">
+                        <strong>Financeiro</strong>
+                        <span>Acesso ao módulo financeiro</span>
+                    </div>
+
+                    <button type="button" class="btn-editar">
+                        Editar
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <section class="salvar-area">
+
+        <div>
+            <strong>Configurações de acesso</strong>
+
+            <span>
+                As permissões selecionadas serão aplicadas aos usuários do grupo.
+            </span>
+        </div>
+
+        <button type="button" class="btn-salvar">
+            Salvar alterações
+        </button>
+
+    </section>
+
+</main>
+
+<footer>
+    <strong>RápiDinha Fretes</strong>
+    <span>Soluções em logística e fretamento</span>
+</footer>
 
 </body>
 </html>
