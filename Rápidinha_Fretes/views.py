@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import math
 from decimal import Decimal, InvalidOperation
 from functools import wraps
@@ -8,15 +9,26 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.http import JsonResponse
+=======
+from decimal import Decimal, InvalidOperation
+from functools import wraps
+
+from django.contrib.auth.hashers import check_password, make_password
+from django.core.exceptions import ValidationError
+from django.db.models import Sum
+>>>>>>> b531bb55163f504a25d71df33644fe4a6daf3725
 from django.shortcuts import redirect, render
 
 from .models import Login, Manutencao, Veiculo
 
 CARGOS = ('Funcionario', 'Administrador')
 
+<<<<<<< HEAD
 ORIGEM = ("São Paulo", -23.5505, -46.6333)
 DESTINO = ("Campinas", -22.9099, -47.0626)
 
+=======
+>>>>>>> b531bb55163f504a25d71df33644fe4a6daf3725
 
 def apenas_admin(view):
     @wraps(view)
@@ -128,6 +140,7 @@ def financeiro(request):
 
 
 def veiculos(request):
+<<<<<<< HEAD
     return render(request, 'veiculos.html')
 
 
@@ -189,3 +202,6 @@ def posicao_veiculo(request, placa):
         "progresso": progresso,
         "restante_km": round(max(0, total - percorrido)),
     })
+=======
+    return render(request, 'veiculos.html')
+>>>>>>> b531bb55163f504a25d71df33644fe4a6daf3725

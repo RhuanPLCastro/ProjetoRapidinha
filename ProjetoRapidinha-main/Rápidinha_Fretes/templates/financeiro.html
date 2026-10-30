@@ -1,0 +1,583 @@
+{% load static l10n %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Financeiro - RápiDinha Fretes</title>
+
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=6">
+
+    <style>
+        .filtro-financeiro { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        .grafico-box { position: relative; height: 300px; margin-top: 16px; }
+        .grafico-total { margin-top: 12px; font-weight: 600; }
+        .erro { color: #dc2626; font-weight: 600; }
+    </style>
+</head>
+
+<body>
+
+    <aside id="barra">
+
+        <button class="botao-menu" onclick="diminuirBarra()">
+            ☰
+        </button>
+
+        <div class="logo">
+            <h2>RápiDinha</h2>
+            <p>Fretes</p>
+        </div>
+
+        <nav>
+
+            <p class="menu-titulo">GESTÃO</p>
+
+            <a href="{% url 'home' %}">
+                <span>⌂</span>
+                <b>Home</b>
+            </a>
+
+            <a href="{% url 'financeiro' %}" class="ativo">
+                <span>R$</span>
+                <b>Financeiro</b>
+            </a>
+
+            <p class="menu-titulo">FROTA</p>
+
+            <a href="{% url 'veiculos' %}">
+                <span>🚚</span>
+                <b>Veículos</b>
+            </a>
+
+        </nav>
+
+        <div class="sair">
+
+            <a href="{% url 'home' %}">
+                <span>←</span>
+                <b>Voltar</b>
+            </a>
+
+        </div>
+
+    </aside>
+
+    <main class="financeiro">
+
+        <div class="topo">
+
+            <div>
+                <p class="pequeno">CONTROLE FINANCEIRO</p>
+
+                <h1>Financeiro</h1>
+
+                <p class="descricao">
+                    Acompanhe as receitas, despesas e movimentações dos seus fretes.
+                </p>
+            </div>
+
+            <button id="btnNovaMovimentacao">
+                + Nova movimentação
+            </button>
+
+        </div>
+
+        <section class="saldo-principal">
+
+            <div>
+                <p>Saldo atual</p>
+
+                <h2>R$ 0,00</h2>
+
+                <span>Saldo disponível</span>
+            </div>
+
+            <div class="saldo-info">
+                <p>Este mês</p>
+
+                <h3>R$ 0,00</h3>
+            </div>
+
+        </section>
+
+        <section class="cartoes">
+
+            <div class="cartao receita">
+
+                <p>Receitas</p>
+
+                <h2>R$ 0,00</h2>
+
+                <span>Valores recebidos</span>
+
+            </div>
+
+            <div class="cartao despesa">
+
+                <p>Despesas</p>
+
+                <h2 id="valorDespesas">
+                    R$ {{ total_manutencao|floatformat:2 }}
+                </h2>
+
+                <span id="legendaDespesas">Gastos com manutenção</span>
+
+            </div>
+
+            <div class="cartao">
+
+                <p>Fretes realizados</p>
+
+                <h2>0</h2>
+
+                <span>Total de fretes</span>
+
+            </div>
+
+            <div class="cartao">
+
+                <p>Movimentações</p>
+
+                <h2 id="qtdMovimentacoes">{{ manutencoes|length }}</h2>
+
+                <span>Registros financeiros</span>
+
+            </div>
+
+        </section>
+
+        <section class="caixa movimentacoes">
+
+            <div class="filtro-financeiro">
+
+                <label for="filtroCategoria">Filtrar por:</label>
+
+                <select id="filtroCategoria">
+                    <option value="todos">Todos</option>
+                    <option value="gerentes">Gerentes</option>
+                    <option value="diretores">Diretores</option>
+                    <option value="veiculos">Veículos</option>
+                    <option value="manutencao">Manutenção</option>
+                    <option value="eventos">Eventos</option>
+                </select>
+
+                <label for="filtroPeriodo">Período:</label>
+
+                <select id="filtroPeriodo">
+                    <option value="tudo">Todo o período</option>
+                    <option value="semana">Esta semana</option>
+                    <option value="mes">Este mês</option>
+                </select>
+
+            </div>
+
+            <div class="caixa-topo">
+
+                <div>
+                    <h2>Movimentações recentes</h2>
+
+                    <p>
+                        Últimas movimentações financeiras
+                    </p>
+                </div>
+
+                <button id="btnNovaMovimentacao2">
+                    Adicionar
+                </button>
+
+            </div>
+
+            <div class="tabela">
+
+                <div class="tabela-cabecalho">
+
+                    <span>DESCRIÇÃO</span>
+                    <span>DATA</span>
+                    <span>TIPO</span>
+                    <span>VALOR</span>
+                    <span>STATUS</span>
+
+                </div>
+
+                {% for manutencao in manutencoes %}
+
+                <div class="tabela-cabecalho linha-mov"
+                     data-data="{{ manutencao.data_entrada|date:'Y-m-d' }}"
+                     data-custo="{{ manutencao.custo|unlocalize }}"
+                     data-categoria="manutencao veiculos">
+
+                    <span>
+                        {{ manutencao.descricao|default:manutencao.tipo }}
+                    </span>
+
+                    <span>
+                        {{ manutencao.data_entrada|date:"d/m/Y" }}
+                    </span>
+
+                    <span>
+                        Manutenção
+                    </span>
+
+                    <span>
+                        R$ {{ manutencao.custo|floatformat:2 }}
+                    </span>
+
+                    <span>
+
+                        {% if manutencao.data_saida %}
+                            Concluída
+                        {% else %}
+                            Em andamento
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+                {% empty %}
+
+                <div class="sem-dados">
+
+                    <h3>Nenhuma movimentação</h3>
+
+                    <p>
+                        As movimentações financeiras aparecerão aqui.
+                    </p>
+
+                </div>
+
+                {% endfor %}
+
+                <div class="sem-dados" id="semResultados" style="display:none;">
+
+                    <h3>Nenhuma movimentação neste filtro</h3>
+
+                    <p>
+                        Tente outro período ou outra categoria.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="caixa grafico">
+
+            <div class="caixa-topo">
+
+                <div>
+                    <h2>Gastos no período</h2>
+
+                    <p id="tituloGrafico">Últimos 6 meses</p>
+                </div>
+
+            </div>
+
+            <div class="grafico-box">
+                <canvas id="graficoGastos"></canvas>
+            </div>
+
+            <p class="grafico-total" id="totalGrafico"></p>
+
+        </section>
+
+    </main>
+
+    <div id="modalMovimentacao" class="modal">
+
+        <div class="modal-conteudo">
+
+            <button id="fecharModal">
+                ×
+            </button>
+
+            <h2>Nova movimentação</h2>
+
+            {% if erro %}
+                <p class="erro">{{ erro }}</p>
+            {% endif %}
+
+            <form method="POST" action="{% url 'financeiro' %}">
+
+                {% csrf_token %}
+
+                <label>
+                    Tipo
+                </label>
+
+                <select
+                    name="tipo"
+                    id="tipoMovimentacao"
+                    required
+                >
+
+                    <option value="despesa">
+                        Despesa
+                    </option>
+
+                </select>
+
+                <label>
+                    Descrição
+                </label>
+
+                <input
+                    type="text"
+                    name="descricao"
+                    id="descricaoMovimentacao"
+                    placeholder="Ex: Troca de óleo"
+                    required
+                >
+
+                <label>
+                    Valor
+                </label>
+
+                <input
+                    type="number"
+                    name="valor"
+                    id="valorMovimentacao"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    required
+                >
+
+                <label>
+                    Data
+                </label>
+
+                <input
+                    type="date"
+                    name="data"
+                    id="dataMovimentacao"
+                    required
+                >
+
+                <label>
+                    Veículo
+                </label>
+
+                <select
+                    name="veiculo"
+                    id="veiculoMovimentacao"
+                    required
+                >
+                    <option value="">
+                        Selecione o veículo
+                    </option>
+
+                    {% for veiculo in veiculos %}
+                        <option value="{{ veiculo.id_veiculo }}">
+                            {{ veiculo.placa }} - {{ veiculo.modelo }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <div class="botoes-modal">
+
+                    <button
+                        type="button"
+                        id="cancelarMovimentacao"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="salvarMovimentacao"
+                    >
+                        Salvar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        function diminuirBarra() {
+
+            document
+                .getElementById("barra")
+                .classList
+                .toggle("menor");
+
+            document
+                .querySelector(".financeiro")
+                .classList
+                .toggle("financeiro-menor");
+
+        }
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+    (function () {
+
+        const selCategoria = document.getElementById("filtroCategoria");
+        const selPeriodo = document.getElementById("filtroPeriodo");
+        const aviso = document.getElementById("semResultados");
+        const hoje = new Date();
+        let grafico = null;
+
+        const moeda = (v) =>
+            v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+        const dados = Array.from(document.querySelectorAll(".linha-mov")).map((el) => {
+            const [a, m, d] = el.dataset.data.split("-").map(Number);
+            return {
+                el: el,
+                data: new Date(a, m - 1, d),
+                custo: parseFloat(el.dataset.custo) || 0,
+                categorias: el.dataset.categoria.split(" ")
+            };
+        });
+
+        function inicioSemana() {
+            const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+            d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+            return d;
+        }
+
+        function noPeriodo(data, periodo) {
+            if (periodo === "semana") {
+                const ini = inicioSemana();
+                const fim = new Date(ini);
+                fim.setDate(ini.getDate() + 7);
+                return data >= ini && data < fim;
+            }
+            if (periodo === "mes") {
+                return data.getFullYear() === hoje.getFullYear()
+                    && data.getMonth() === hoje.getMonth();
+            }
+            return true;
+        }
+
+        function montarColunas(itens, periodo) {
+            let labels = [];
+            let valores = [];
+
+            if (periodo === "semana") {
+                labels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+                valores = new Array(7).fill(0);
+                itens.forEach((i) => { valores[(i.data.getDay() + 6) % 7] += i.custo; });
+                return { labels, valores, titulo: "Esta semana, por dia" };
+            }
+
+            if (periodo === "mes") {
+                const dias = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
+                const semanas = Math.ceil(dias / 7);
+                for (let s = 0; s < semanas; s++) {
+                    const ini = s * 7 + 1;
+                    const fim = Math.min(ini + 6, dias);
+                    labels.push(ini + "–" + fim);
+                }
+                valores = new Array(semanas).fill(0);
+                itens.forEach((i) => { valores[Math.floor((i.data.getDate() - 1) / 7)] += i.custo; });
+                return { labels, valores, titulo: "Este mês, por semana (dias do mês)" };
+            }
+
+            const nomes = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+            const meses = [];
+            for (let k = 5; k >= 0; k--) {
+                const d = new Date(hoje.getFullYear(), hoje.getMonth() - k, 1);
+                meses.push({ a: d.getFullYear(), m: d.getMonth() });
+                labels.push(nomes[d.getMonth()] + "/" + String(d.getFullYear()).slice(2));
+            }
+            valores = new Array(6).fill(0);
+            itens.forEach((i) => {
+                const pos = meses.findIndex((x) => x.a === i.data.getFullYear() && x.m === i.data.getMonth());
+                if (pos >= 0) valores[pos] += i.custo;
+            });
+            return { labels, valores, titulo: "Últimos 6 meses" };
+        }
+
+        function desenharGrafico(col) {
+            document.getElementById("tituloGrafico").textContent = col.titulo;
+
+            if (typeof Chart === "undefined") {
+                document.getElementById("totalGrafico").textContent =
+                    "Não foi possível carregar o gráfico (sem conexão com a internet).";
+                return;
+            }
+
+            if (grafico) grafico.destroy();
+
+            grafico = new Chart(document.getElementById("graficoGastos"), {
+                type: "bar",
+                data: {
+                    labels: col.labels,
+                    datasets: [{
+                        label: "Gastos (R$)",
+                        data: col.valores,
+                        backgroundColor: "#ef4444",
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (c) => moeda(c.parsed.y) } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: (v) => moeda(v) } }
+                    }
+                }
+            });
+        }
+
+        function atualizar() {
+            const categoria = selCategoria.value;
+            const periodo = selPeriodo.value;
+
+            const visiveis = dados.filter((i) =>
+                (categoria === "todos" || i.categorias.includes(categoria))
+                && noPeriodo(i.data, periodo)
+            );
+
+            dados.forEach((i) => { i.el.style.display = visiveis.includes(i) ? "" : "none"; });
+
+            if (aviso) aviso.style.display = (dados.length > 0 && visiveis.length === 0) ? "" : "none";
+
+            const total = visiveis.reduce((soma, i) => soma + i.custo, 0);
+            const legenda = { tudo: "", semana: " · esta semana", mes: " · este mês" }[periodo];
+
+            document.getElementById("valorDespesas").textContent = moeda(total);
+            document.getElementById("legendaDespesas").textContent = "Gastos com manutenção" + legenda;
+            document.getElementById("qtdMovimentacoes").textContent = visiveis.length;
+
+            const col = montarColunas(visiveis, periodo);
+            desenharGrafico(col);
+
+            if (typeof Chart !== "undefined") {
+                document.getElementById("totalGrafico").textContent =
+                    "Total no filtro: " + moeda(total);
+            }
+        }
+
+        selCategoria.addEventListener("change", atualizar);
+        selPeriodo.addEventListener("change", atualizar);
+        atualizar();
+
+    })();
+    </script>
+
+    <script src="{% static 'js/financeiro.js' %}"></script>
+
+</body>
+
+</html>

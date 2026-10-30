@@ -11,10 +11,13 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 from pathlib import Path
+<<<<<<< HEAD
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+=======
+>>>>>>> b531bb55163f504a25d71df33644fe4a6daf3725
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,5 +146,8 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+<<<<<<< HEAD
 RASTREIO_URL = os.environ.get("RASTREIO_URL")
 RASTREIO_KEY = os.environ.get("RASTREIO_KEY")
+=======
+>>>>>>> b531bb55163f504a25d71df33644fe4a6daf3725
