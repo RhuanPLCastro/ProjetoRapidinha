@@ -879,7 +879,6 @@ aside.menor .sair a b {
     margin-bottom: 20px;
 }
 
-<<<<<<< HEAD
 .veiculos .abas {
     display: flex;
 
@@ -900,59 +899,11 @@ aside.menor .sair a b {
     border-radius: 6px;
 
     font-size: 12px;
-=======
-.simulador {
-    display: grid;
-
-    grid-template-columns: 2fr 1fr auto;
-
-    gap: 15px;
-
-    align-items: end;
-}
-
-.simulador select,
-.simulador input {
-    width: 100%;
-
-    padding: 12px;
-
-    margin-bottom: 0;
-
-    background-color: #FFFFFF;
-
-    color: #1E293B;
-
-    border: 1px solid #CBD5E1;
-    border-radius: 8px;
-
-    font-size: 14px;
-}
-
-.simulador select:focus,
-.simulador input:focus {
-    outline: none;
-
-    border-color: #E63946;
-}
-
-.simulador button {
-    padding: 13px 22px;
-
-    background-color: #E63946;
-    color: #FFFFFF;
-
-    border: none;
-    border-radius: 8px;
-
-    font-size: 14px;
->>>>>>> b531bb55163f504a25d71df33644fe4a6daf3725
     font-weight: bold;
 
     cursor: pointer;
 }
 
-<<<<<<< HEAD
 .veiculos .abas button:hover {
     background-color: #FFFFFF;
     color: #1E293B;
@@ -968,45 +919,6 @@ aside.menor .sair a b {
 
     display: grid;
 
-=======
-.simulador button:hover {
-    background-color: #10B981;
-}
-
-.resultado {
-    margin-top: 20px;
-
-    padding: 20px;
-
-    background-color: #1E293B;
-
-    border-radius: 10px;
-
-    color: #FFFFFF;
-}
-
-.resultado p {
-    margin-bottom: 8px;
-
-    color: #CBD5E1;
-
-    font-size: 13px;
-}
-
-.resultado h3 {
-    color: #10B981;
-
-    font-size: 26px;
-}
-
-.tabela-linha {
-    min-height: 50px;
-
-    display: grid;
-
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-
->>>>>>> b531bb55163f504a25d71df33644fe4a6daf3725
     align-items: center;
 
     padding: 0 20px;
@@ -1022,7 +934,6 @@ aside.menor .sair a b {
     border-bottom: none;
 }
 
-<<<<<<< HEAD
 .tabela-linha > span:last-child {
     display: flex;
 
@@ -1121,8 +1032,6 @@ aside.menor .sair a b {
     border-bottom: none;
 }
 
-=======
->>>>>>> b531bb55163f504a25d71df33644fe4a6daf3725
 .tabela-linha:hover {
     background-color: #F8FAFC;
 }
@@ -1350,4 +1259,53 @@ aside.menor .sair a b {
 
 .btn-voltar-admin:hover {
     background-color: #334155;
+}
+.logo img {
+    width: 100%;
+    max-width: 170px;
+    display: block;
+    border-radius: 10px;
+}
+
+aside.menor .logo img {
+    max-width: 45px;
+}
+.logo img {
+    width: 100%;
+    max-width: 170px;
+    display: block;
+}
+
+aside.menor .logo img {
+    max-width: 45px;
+}
+.marca-login {
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+
+    border-bottom: 1px solid #E2E8F0;
+
+    text-align: center;
+}
+
+.logo-login {
+    width: 130px;
+    max-width: 100%;
+
+    display: block;
+
+    margin: 0 auto;
+}
+
+.marca-login span {
+    display: block;
+
+    margin-top: 10px;
+
+    color: #64748B;
+
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
 }
