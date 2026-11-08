@@ -91,10 +91,11 @@
                 </div>
             </div>
 
-            <form method="POST" class="formulario">
+            <form method="POST" class="formulario" id="form-grupo" action="{% url 'painel_admin' %}">
                 {% csrf_token %}
 
-                <input type="hidden" name="acao" value="criar_grupo">
+                <input type="hidden" name="acao" value="salvar_grupo">
+<input type="hidden" name="grupo_id" id="grupo_id" value="">
 
                 <label for="nome_grupo">Nome do grupo</label>
 
@@ -145,7 +146,7 @@
                         type="checkbox"
                         name="usuarios"
                         value="{{ u.id_login }}"
-                    >
+                     form="form-grupo">
 
                     <span class="check-custom"></span>
 
@@ -188,7 +189,7 @@
             <div class="permissoes">
 
                 <label class="permissao">
-                    <input type="checkbox" name="permissoes" value="financeiro">
+                    <input type="checkbox" name="permissoes" value="financeiro" form="form-grupo">
                     <span class="permissao-check"></span>
                     <span class="permissao-icon financeiro">$</span>
 
@@ -199,7 +200,7 @@
                 </label>
 
                 <label class="permissao">
-                    <input type="checkbox" name="permissoes" value="veiculos">
+                    <input type="checkbox" name="permissoes" value="veiculos" form="form-grupo">
                     <span class="permissao-check"></span>
                     <span class="permissao-icon">🚚</span>
 
@@ -210,7 +211,7 @@
                 </label>
 
                 <label class="permissao">
-                    <input type="checkbox" name="permissoes" value="manutencoes">
+                    <input type="checkbox" name="permissoes" value="manutencoes" form="form-grupo">
                     <span class="permissao-check"></span>
                     <span class="permissao-icon">🔧</span>
 
@@ -221,7 +222,7 @@
                 </label>
 
                 <label class="permissao">
-                    <input type="checkbox" name="permissoes" value="motoristas">
+                    <input type="checkbox" name="permissoes" value="motoristas" form="form-grupo">
                     <span class="permissao-check"></span>
                     <span class="permissao-icon">👤</span>
 
@@ -232,7 +233,7 @@
                 </label>
 
                 <label class="permissao permissao-admin">
-                    <input type="checkbox" name="permissoes" value="administracao">
+                    <input type="checkbox" name="permissoes" value="administracao" form="form-grupo">
                     <span class="permissao-check"></span>
                     <span class="permissao-icon">⚙</span>
 
@@ -260,47 +261,42 @@
             </div>
 
             <div class="grupos">
-
-                <div class="grupo">
-                    <div class="grupo-icon">🛡️</div>
-
-                    <div class="grupo-info">
-                        <strong>Administradores</strong>
-                        <span>Acesso completo ao sistema</span>
-                    </div>
-
-                    <button type="button" class="btn-editar">
-                        Editar
-                    </button>
-                </div>
-
-                <div class="grupo">
-                    <div class="grupo-icon">🚚</div>
-
-                    <div class="grupo-info">
-                        <strong>Operadores de Frota</strong>
-                        <span>Veículos e motoristas</span>
-                    </div>
-
-                    <button type="button" class="btn-editar">
-                        Editar
-                    </button>
-                </div>
-
-                <div class="grupo">
-                    <div class="grupo-icon">💰</div>
-
-                    <div class="grupo-info">
-                        <strong>Financeiro</strong>
-                        <span>Acesso ao módulo financeiro</span>
-                    </div>
-
-                    <button type="button" class="btn-editar">
-                        Editar
-                    </button>
-                </div>
-
-            </div>
+    {% for grupo in grupos %}
+    <div class="grupo">
+        <div class="grupo-icon">🛡️</div>
+        <div class="grupo-info">
+            <strong>{{ grupo.nome }}</strong>
+            <span>
+                {{ grupo.descricao|default:"Sem descrição" }}<br>
+                <strong>Integrantes:</strong>
+                {% for integrante in grupo.usuarios.all %}
+                    {{ integrante.usuario }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    Nenhum integrante
+                {% endfor %}
+            </span>
+        </div>
+        <button
+            type="button"
+            class="btn-editar editar-grupo"
+            data-grupo="{{ forloop.counter0 }}"
+        >Editar</button>
+<button
+    type="submit"
+    class="btn-editar"
+    name="excluir_grupo"
+    value="{{ grupo.id }}"
+    form="form-grupo"
+    formnovalidate
+    onclick="return confirm('Tem certeza que deseja excluir este grupo?');"
+>
+    Excluir
+</button>
+    </div>
+    {% empty %}
+    <div class="sem-usuarios">Nenhum grupo cadastrado.</div>
+    {% endfor %}
+</div>
 
         </section>
 
@@ -316,7 +312,7 @@
             </span>
         </div>
 
-        <button type="button" class="btn-salvar">
+        <button class="btn-salvar" type="submit" form="form-grupo">
             Salvar alterações
         </button>
 

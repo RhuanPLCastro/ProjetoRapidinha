@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from Rápidinha_Fretes.models import Manutencao, Veiculo
 
-
 def financeiro(request):
 
     if request.method == 'POST':

@@ -8,14 +8,23 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 
-from .models import Login, Manutencao, Veiculo
+from .models import Grupo, Login, Manutencao, Veiculo
 
 
-CARGOS = ('Funcionario', 'Mecanico', 'Administrador')
+CARGOS = ("Funcionario", "Mecanico", "Administrador")
+
+PERMISSOES_GRUPO = {
+    "financeiro",
+    "veiculos",
+    "manutencoes",
+    "motoristas",
+    "administracao",
+}
 
 ORIGEM = ("São Paulo", -23.5505, -46.6333)
 DESTINO = ("Campinas", -22.9099, -47.0626)
@@ -23,10 +32,11 @@ DESTINO = ("Campinas", -22.9099, -47.0626)
 def apenas_admin(view):
     @wraps(view)
     def wrapper(request, *args, **kwargs):
-        if request.session.get('cargo') != 'Administrador':
+        if request.session.get("cargo") != "Administrador":
             messages.error(request, "Acesso negado: Apenas administradores.")
-            return redirect('home')
+            return redirect("home")
         return view(request, *args, **kwargs)
+
     return wrapper
 
 def admin_ou_mecanico(view_func):
@@ -39,94 +49,239 @@ def admin_ou_mecanico(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
+def requer_permissao(permissao):
+    def decorator(view):
+        @wraps(view)
+        def wrapper(request, *args, **kwargs):
+            if request.session.get("cargo") == "Administrador":
+                return view(request, *args, **kwargs)
+
+            login_id = request.session.get("login_id")
+            if not login_id:
+                return redirect("cadastrar")
+
+            grupos = Grupo.objects.filter(
+                usuarios__id_login=login_id
+            ).values_list("permissoes", flat=True)
+
+            autorizado = any(
+                permissao in (permissoes or [])
+                for permissoes in grupos
+            )
+
+            if not autorizado:
+                return redirect("home")
+
+            return view(request, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
 def iniciar_sessao(request, usuario):
     request.session.cycle_key()
-    request.session['login_id'] = usuario.id_login
-    request.session['usuario'] = usuario.usuario
-    request.session['cargo'] = usuario.cargo
+    request.session["login_id"] = usuario.id_login
+    request.session["usuario"] = usuario.usuario
+    request.session["cargo"] = usuario.cargo
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, "home.html")
 
 def cadastrar(request):
     erro = None
     acao = None
 
-    if request.method == 'POST':
-        acao = request.POST.get('acao')
-        email = request.POST.get('email', '').strip().lower()
-        senha = request.POST.get('senha', '')
+    if request.method == "POST":
+        acao = request.POST.get("acao")
+        email = request.POST.get("email", "").strip().lower()
+        senha = request.POST.get("senha", "")
 
-        if acao == 'entrar':
+        if acao == "entrar":
             usuario = Login.objects.filter(usuario=email).first()
             if usuario and check_password(senha, usuario.senha):
                 iniciar_sessao(request, usuario)
-                return redirect('home')
-            erro = 'E-mail ou senha incorretos.'
+                return redirect("home")
+            erro = "E-mail ou senha incorretos."
         else:
-            acao = 'cadastrar'
-            nome = request.POST.get('nome', '').strip()
+            acao = "cadastrar"
+            nome = request.POST.get("nome", "").strip()
             if not nome or not email or not senha:
-                erro = 'Preencha todos os campos.'
+                erro = "Preencha todos os campos."
             elif len(email) > 50:
-                erro = 'E-mail muito longo (máximo de 50 caracteres).'
+                erro = "E-mail muito longo (máximo de 50 caracteres)."
             elif Login.objects.filter(usuario=email).exists():
-                erro = 'Esse e-mail já está cadastrado.'
+                erro = "Esse e-mail já está cadastrado."
             else:
                 usuario = Login.objects.create(
                     usuario=email,
                     senha=make_password(senha),
-                    cargo='Funcionario',
+                    cargo="Funcionario",
                 )
                 iniciar_sessao(request, usuario)
-                return redirect('home')
+                return redirect("home")
 
-    return render(request, 'cadastrar.html', {'erro': erro, 'acao': acao})
+    return render(
+        request,
+        "cadastrar.html",
+        {
+            "erro": erro,
+            "acao": acao,
+        },
+    )
 
 def sair(request):
     request.session.flush()
-    return redirect('cadastrar')
+    return redirect("cadastrar")
 
 @apenas_admin
 def painel_admin(request):
-    if request.method == 'POST':
-        cargo = request.POST.get('cargo')
-        if cargo in CARGOS:
-            Login.objects.filter(
-                id_login=request.POST.get('id_login')
-            ).update(cargo=cargo)
-        return redirect('painel_admin')
+    print("PAINEL:", request.method, request.POST.dict())
+    if request.method == "POST":
+        grupo_para_excluir = request.POST.get("excluir_grupo")
 
-    return render(request, 'painel_admin.html', {
-        'usuarios': Login.objects.all().order_by('usuario'),
-        'cargos': CARGOS,
-    })
+        if grupo_para_excluir:
+            Grupo.objects.filter(pk=grupo_para_excluir).delete()
+            return redirect("painel_admin")
 
+        acao = request.POST.get("acao")
+
+        # Mantém a alteração de cargo, se outro formulário ainda a utilizar.
+        if acao == "alterar_cargo":
+            cargo = request.POST.get("cargo")
+
+            if cargo in CARGOS:
+                Login.objects.filter(
+                    id_login=request.POST.get("id_login")
+                ).update(cargo=cargo)
+
+            return redirect("painel_admin")
+
+        if acao == "salvar_grupo":
+            nome = request.POST.get("nome_grupo", "").strip()
+            descricao = request.POST.get("descricao_grupo", "").strip()
+            grupo_id = request.POST.get("grupo_id", "").strip()
+
+            usuario_ids = request.POST.getlist("usuarios")
+            permissoes = sorted(
+                set(request.POST.getlist("permissoes"))
+                & PERMISSOES_GRUPO
+            )
+
+            if not nome:
+                return _render_painel_admin(
+                    request,
+                    erro_grupo="Informe o nome do grupo.",
+                )
+
+            if grupo_id:
+                grupo = Grupo.objects.filter(pk=grupo_id).first()
+
+                if grupo is None:
+                    return redirect("painel_admin")
+            else:
+                grupo = Grupo()
+
+            grupo.nome = nome
+            grupo.descricao = descricao
+            grupo.permissoes = permissoes
+
+            try:
+                grupo.save()
+            except IntegrityError:
+                return _render_painel_admin(
+                    request,
+                    erro_grupo=(
+                        "Já existe um grupo com esse nome. "
+                        "Escolha outro nome."
+                    ),
+                )
+
+            grupo.usuarios.set(
+                Login.objects.filter(id_login__in=usuario_ids)
+            )
+
+            return redirect("painel_admin")
+
+        return redirect("painel_admin")
+
+    return _render_painel_admin(request)
+
+def _render_painel_admin(request, erro_grupo=None):
+    grupos = list(
+        Grupo.objects.prefetch_related("usuarios").all()
+    )
+
+    grupos_json = [
+        {
+            "id": grupo.pk,
+            "nome": grupo.nome,
+            "descricao": grupo.descricao,
+            "usuarios": list(
+                grupo.usuarios.values_list("id_login", flat=True)
+            ),
+            "permissoes": grupo.permissoes,
+        }
+        for grupo in grupos
+    ]
+
+    return render(
+        request,
+        "painel_admin.html",
+        {
+            "usuarios": Login.objects.all().order_by("usuario"),
+            "grupos": grupos,
+            "grupos_json": grupos_json,
+            "erro_grupo": erro_grupo,
+        },
+    )
+
+
+@requer_permissao("financeiro")
 def financeiro(request):
     erro = None
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             manutencao = Manutencao(
-                tipo=request.POST.get('tipo'),
-                descricao=request.POST.get('descricao'),
-                custo=Decimal(request.POST.get('valor')),
-                data_entrada=request.POST.get('data'),
-                id_veiculo_id=request.POST.get('veiculo') or None,
+                tipo=request.POST.get("tipo"),
+                descricao=request.POST.get("descricao"),
+                custo=Decimal(request.POST.get("valor")),
+                data_entrada=request.POST.get("data"),
+                id_veiculo_id=request.POST.get("veiculo") or None,
             )
+
             manutencao.full_clean()
             manutencao.save()
-            return redirect('financeiro')
+
+            return redirect("financeiro")
+
         except (ValidationError, InvalidOperation, TypeError):
-            erro = 'Não foi possível salvar. Confira os campos e o veículo.'
+            erro = (
+                "Não foi possível salvar. "
+                "Confira os campos e o veículo."
+            )
 
-    manutencoes = Manutencao.objects.select_related('id_veiculo').order_by('-data_entrada')
-    return render(request, 'financeiro.html', {
-        'manutencoes': manutencoes,
-        'total_manutencao': manutencoes.aggregate(t=Sum('custo'))['t'] or 0,
-        'veiculos': Veiculo.objects.all(),
-        'erro': erro,
-    })
+    manutencoes = (
+        Manutencao.objects
+        .select_related("id_veiculo")
+        .order_by("-data_entrada")
+    )
 
+    return render(
+        request,
+        "financeiro.html",
+        {
+            "manutencoes": manutencoes,
+            "total_manutencao": (
+                manutencoes.aggregate(t=Sum("custo"))["t"] or 0
+            ),
+            "veiculos": Veiculo.objects.all(),
+            "erro": erro,
+        },
+    )
+
+
+@requer_permissao("veiculos")
 def veiculos(request):
     lista_veiculos = Veiculo.objects.all()
     return render(request, 'veiculos.html', {'veiculos': lista_veiculos})
@@ -135,12 +290,24 @@ def distancia_km(lat1, lng1, lat2, lng2):
     raio = 6371
     dlat = math.radians(lat2 - lat1)
     dlng = math.radians(lng2 - lng1)
-    a = (math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlng / 2) ** 2)
+    a = (
+        math.sin(dlat / 2) ** 2
+        + math.cos(math.radians(lat1))
+        * math.cos(math.radians(lat2))
+        * math.sin(dlng / 2) ** 2
+    )
     return raio * 2 * math.asin(math.sqrt(a))
 
 def buscar_posicao(placa):
-    cabecalho = {"Authorization": "Bearer " + settings.RASTREIO_KEY}
-    resposta = requests.get(settings.RASTREIO_URL + "/api/devices", params={"uniqueId": placa}, headers=cabecalho, timeout=5)
+    cabecalho = {
+        "Authorization": "Bearer " + settings.RASTREIO_KEY
+    }
+    resposta = requests.get(
+        settings.RASTREIO_URL + "/api/devices",
+        params={"uniqueId": placa},
+        headers=cabecalho,
+        timeout=5,
+    )
     resposta.raise_for_status()
     dispositivos = resposta.json()
     if not dispositivos:
@@ -152,19 +319,34 @@ def buscar_posicao(placa):
         raise ValueError("Veículo ainda sem posição")
     return posicoes[0]["latitude"], posicoes[0]["longitude"]
 
+@requer_permissao("veiculos")
 def posicao_veiculo(request, placa):
     try:
         lat, lng = buscar_posicao(placa)
     except Exception:
-        return JsonResponse({"erro": "Sem sinal do veículo"}, status=502)
+        return JsonResponse(
+            {"erro": "Sem sinal do veículo"},
+            status=502,
+        )
 
-    total = distancia_km(ORIGEM[1], ORIGEM[2], DESTINO[1], DESTINO[2])
-    percorrido = distancia_km(ORIGEM[1], ORIGEM[2], lat, lng)
+    total = distancia_km(
+        ORIGEM[1], ORIGEM[2], DESTINO[1], DESTINO[2]
+    )
+    percorrido = distancia_km(
+        ORIGEM[1], ORIGEM[2], lat, lng
+    )
     progresso = min(100, round(percorrido / total * 100))
-    return JsonResponse({
-        "placa": placa, "lat": lat, "lng": lng, "origem": ORIGEM[0], "destino": DESTINO[0],
-        "progresso": progresso, "restante_km": round(max(0, total - percorrido)),
-    })
+    return JsonResponse(
+        {
+            "placa": placa,
+            "lat": lat,
+            "lng": lng,
+            "origem": ORIGEM[0],
+            "destino": DESTINO[0],
+            "progresso": progresso,
+            "restante_km": round(max(0, total - percorrido)),
+        }
+    )
 
 @apenas_admin
 def adicionar_veiculo(request):
@@ -192,11 +374,11 @@ def alterar_status_veiculo(request, id_veiculo):
     veiculo = get_object_or_404(Veiculo, id_veiculo=id_veiculo)
     if request.method == 'POST':
         novo_status = request.POST.get('status')
-        
+
         if novo_status == 'Em Manutenção':
             descricao = request.POST.get('descricao_problema')
             custo = request.POST.get('custo') or 0
-            
+
             Manutencao.objects.create(
                 id_veiculo=veiculo,
                 tipo='Corretiva',
@@ -215,5 +397,5 @@ def alterar_status_veiculo(request, id_veiculo):
         veiculo.save()
         messages.success(request, f"Status do veículo {veiculo.placa} atualizado para {novo_status}.")
         return redirect('veiculos')
-        
+
     return render(request, 'alterar_status.html', {'veiculo': veiculo})
