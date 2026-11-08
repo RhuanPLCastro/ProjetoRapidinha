@@ -1,7 +1,4 @@
 from django.db import models
-from django.core.validators import MinLengthValidator
-
-# Create your models here.
 
 
 class Login(models.Model):
@@ -40,16 +37,16 @@ class Motorista(models.Model):
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11, unique=True)
     id_login = models.OneToOneField(
-        Login, 
-        on_delete=models.CASCADE, 
-        db_column="id_login"
+        Login,
+        on_delete=models.CASCADE,
+        db_column="id_login",
     )
     id_veiculo = models.ForeignKey(
-        Veiculo, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        db_column="id_veiculo"
+        Veiculo,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column="id_veiculo",
     )
 
     class Meta:
@@ -68,19 +65,40 @@ class Manutencao(models.Model):
     data_entrada = models.DateField()
     data_saida = models.DateField(null=True, blank=True)
     id_veiculo = models.ForeignKey(
-        Veiculo, 
-        on_delete=models.CASCADE, 
-        db_column="id_veiculo"
+        Veiculo,
+        on_delete=models.CASCADE,
+        db_column="id_veiculo",
     )
 
     class Meta:
         db_table = "manutencao"
         constraints = [
             models.CheckConstraint(
-                condition=models.Q(data_saida__isnull=True) | models.Q(data_saida__gte=models.F('data_entrada')),
-                name="check_data_saida"
+                condition=(
+                    models.Q(data_saida__isnull=True)
+                    | models.Q(data_saida__gte=models.F("data_entrada"))
+                ),
+                name="check_data_saida",
             )
         ]
 
     def __str__(self):
         return f"{self.tipo} - {self.id_veiculo}"
+
+
+class Grupo(models.Model):
+    nome = models.CharField(max_length=80, unique=True)
+    descricao = models.CharField(max_length=255, blank=True)
+    usuarios = models.ManyToManyField(
+        Login,
+        blank=True,
+        related_name="grupos",
+    )
+    permissoes = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        db_table = "grupo"
+        ordering = ["nome"]
+
+    def __str__(self):
+        return self.nome
